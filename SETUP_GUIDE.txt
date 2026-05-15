@@ -1,0 +1,256 @@
+================================================================================
+                    SAMSUNG TV PHOTO SHARING APP
+                            SETUP GUIDE
+================================================================================
+
+STEP-BY-STEP SETUP (5 minutes)
+
+1. OPEN PROJECT IN ANDROID STUDIO
+   ┌─────────────────────────────────────────────────────────┐
+   │ Option A: Command Line                                  │
+   │ $ cd /Users/anirudhmeena/android-projects/camera-samsungapp
+   │ $ open -a "Android Studio" .                            │
+   │                                                          │
+   │ Option B: GUI                                           │
+   │ - Open Android Studio                                   │
+   │ - File → Open                                           │
+   │ - Select: camera-samsungapp folder                      │
+   │ - Click "Open"                                          │
+   └─────────────────────────────────────────────────────────┘
+
+2. SYNC GRADLE
+   ┌─────────────────────────────────────────────────────────┐
+   │ - Wait for "Gradle sync finished" message               │
+   │ - All dependencies will auto-download                   │
+   │ - Should take 2-5 minutes on first sync                 │
+   │ - Watch the Build window for progress                   │
+   └─────────────────────────────────────────────────────────┘
+
+3. CONNECT YOUR ANDROID PHONE
+   ┌─────────────────────────────────────────────────────────┐
+   │ A. Enable USB Debugging:                                │
+   │    - Phone Settings → Developer Options                 │
+   │    - Toggle "USB Debugging" ON                          │
+   │    - Tap "OK" on the security prompt                    │
+   │                                                          │
+   │ B. Connect via USB:                                     │
+   │    - Plug in your Android phone with USB cable          │
+   │    - Accept the "Allow USB debugging?" prompt           │
+   │    - Phone should appear in Android Studio              │
+   │                                                          │
+   │ Alternative: Use Android Emulator                       │
+   │    - Create AVD in Android Studio                       │
+   │    - Select it instead of physical device               │
+   └─────────────────────────────────────────────────────────┘
+
+4. RUN THE APP
+   ┌─────────────────────────────────────────────────────────┐
+   │ - Click the green Run button (▶) in toolbar             │
+   │ - Or press: Shift + F10                                 │
+   │ - Select your device/emulator                           │
+   │ - Wait for app to install and launch                    │
+   │ - App should open on your phone                         │
+   └─────────────────────────────────────────────────────────┘
+
+5. GRANT PERMISSIONS
+   ┌─────────────────────────────────────────────────────────┐
+   │ When you see the permission dialog:                     │
+   │ - Tap "Allow" for camera access                         │
+   │ - This is required for the app to work                  │
+   └─────────────────────────────────────────────────────────┘
+
+6. VERIFY APP IS WORKING
+   ┌─────────────────────────────────────────────────────────┐
+   │ You should see on screen:                               │
+   │                                                          │
+   │ ✓ Camera preview (live view)                            │
+   │ ✓ "Server: Running on port 8080 ✓" (green text)        │
+   │ ✓ "IP: 192.168.0.100:8080" (your actual IP)            │
+   │ ✓ "CAPTURE PHOTO" button at bottom                      │
+   │                                                          │
+   │ If you see red error text, see TROUBLESHOOTING below    │
+   └─────────────────────────────────────────────────────────┘
+
+================================================================================
+                          TEST ENDPOINTS
+================================================================================
+
+OPTION 1: From Your Phone Browser
+──────────────────────────────────────────────────────────────────────────────
+Open your phone's browser (Chrome, Safari, etc.) and navigate to:
+   http://localhost:8080/viewer
+   
+You should see a black fullscreen page (empty until you capture an image)
+
+OPTION 2: From Your Laptop/PC
+──────────────────────────────────────────────────────────────────────────────
+Replace YOUR_IP with the actual IP shown in the app (e.g., 192.168.0.100):
+
+Test Image Endpoint:
+   http://YOUR_IP:8080/latest.jpg
+   → Shows the latest captured image (or placeholder if none captured yet)
+
+Test Viewer Endpoint:
+   http://YOUR_IP:8080/viewer
+   → Shows fullscreen viewer page
+
+Example (if your phone IP is 192.168.0.100):
+   http://192.168.0.100:8080/latest.jpg
+   http://192.168.0.100:8080/viewer
+
+================================================================================
+                        SAMSUNG TV SETUP
+================================================================================
+
+PREREQUISITE: Both phone and TV must be on the SAME Wi-Fi network!
+
+1. Note your phone's IP address
+   ┌─────────────────────────────────────────────────────────┐
+   │ Look at the app screen, you'll see:                     │
+   │ "IP: 192.168.0.100:8080"  ← This is your phone IP      │
+   │                            (your actual IP may differ)   │
+   └─────────────────────────────────────────────────────────┘
+
+2. Capture a test photo
+   ┌─────────────────────────────────────────────────────────┐
+   │ - On your phone, tap "CAPTURE PHOTO" button             │
+   │ - Wait for green success message                        │
+   │ - Status should say "Photo captured!"                   │
+   └─────────────────────────────────────────────────────────┘
+
+3. Open TV web browser
+   ┌─────────────────────────────────────────────────────────┐
+   │ On your Samsung TV:                                      │
+   │ - Turn on the TV                                        │
+   │ - Press the Home button on remote                       │
+   │ - Find and open "Internet" or "Web Browser"             │
+   │ - Or use SmartThings app to open browser                │
+   └─────────────────────────────────────────────────────────┘
+
+4. Navigate to the viewer
+   ┌─────────────────────────────────────────────────────────┐
+   │ In the TV browser address bar, type:                    │
+   │ http://192.168.0.100:8080/viewer                        │
+   │                 ↑                                        │
+   │      Replace with your actual phone IP!                 │
+   │                                                          │
+   │ Then press Enter or the remote's OK button              │
+   └─────────────────────────────────────────────────────────┘
+
+5. You should see:
+   ┌─────────────────────────────────────────────────────────┐
+   │ ✓ Black fullscreen background                           │
+   │ ✓ Your captured photo in the center                     │
+   │ ✓ Photo should be centered and fully visible            │
+   └─────────────────────────────────────────────────────────┘
+
+6. Live stream in action!
+   ┌─────────────────────────────────────────────────────────┐
+   │ Each time you tap "CAPTURE PHOTO" on your phone:        │
+   │ - The image is saved on the phone                       │
+   │ - The TV page auto-refreshes every 1 second             │
+   │ - New photo appears on TV within 1 second!              │
+   │                                                          │
+   │ No need to reload the page manually!                    │
+   └─────────────────────────────────────────────────────────┘
+
+================================================================================
+                        QUICK TROUBLESHOOTING
+================================================================================
+
+PROBLEM: Red "Server: Failed to start server" message
+SOLUTION:
+  • Close other apps that might use port 8080
+  • Restart your phone
+  • Check Android logs: adb logcat | grep PhotoServer
+
+PROBLEM: "IP: Not connected to Wi-Fi"
+SOLUTION:
+  • Check your phone is on Wi-Fi (Wi-Fi icon in status bar)
+  • Phone and TV must be on SAME network (same SSID)
+  • Try disconnecting and reconnecting to Wi-Fi
+
+PROBLEM: TV browser shows "Can't reach server" or error
+SOLUTION:
+  • Verify phone IP is correct (check app screen)
+  • Make sure you typed the URL exactly: http://192.168.0.100:8080/viewer
+  • Not https:// (only http)
+  • Test from your laptop first: ping 192.168.0.100
+  • Check if they're really on the same network
+
+PROBLEM: "Camera permission denied" message
+SOLUTION:
+  • Grant permission when the popup appears
+  • Or: Settings → Apps → CameraSamsungApp → Permissions → Camera → Allow
+
+PROBLEM: Camera preview is black or frozen
+SOLUTION:
+  • Close other camera apps
+  • Restart the app
+  • Restart your phone
+
+PROBLEM: Image on TV doesn't update
+SOLUTION:
+  • Tap "CAPTURE PHOTO" on your phone
+  • Wait 1-2 seconds for TV to auto-refresh
+  • If still not updating, refresh TV page manually (Ctrl+R or F5)
+  • Check phone status text says "Photo captured!"
+
+PROBLEM: Nothing shows on TV, just black screen
+SOLUTION:
+  • Did you tap "CAPTURE PHOTO" yet? Must capture first!
+  • Check that your phone IP is correct (shown in app)
+  • Try accessing http://PHONE_IP:8080/viewer on your laptop first
+
+See README.md for complete troubleshooting guide!
+
+================================================================================
+                           DEMO CHECKLIST
+================================================================================
+
+Ready to show off? Follow this checklist:
+
+□ 1. Open app on phone
+   └─ Should show camera preview, green "Server: Running" message, IP address
+
+□ 2. Test on laptop browser first
+   └─ http://YOUR_IP:8080/viewer should load
+
+□ 3. Tap "CAPTURE PHOTO" on phone
+   └─ Status should turn green saying "Photo captured!"
+
+□ 4. Verify image appears on laptop
+   └─ Refresh http://YOUR_IP:8080/viewer should show new image
+
+□ 5. Open TV browser to http://YOUR_IP:8080/viewer
+   └─ Should show your captured photo
+
+□ 6. Capture multiple photos
+   └─ Each one appears on TV within 1 second (auto-refresh works!)
+
+Congratulations! You've successfully built and deployed a live photo streaming
+app from Android to Samsung TV!
+
+================================================================================
+                            NEXT STEPS
+================================================================================
+
+Build & run:
+  1. Open project in Android Studio
+  2. Wait for Gradle sync
+  3. Connect phone and run
+  4. Grant permissions
+  5. Open TV browser to http://PHONE_IP:8080/viewer
+
+For issues, see README.md - it has detailed troubleshooting for:
+  • Server startup issues
+  • Network/Wi-Fi problems
+  • Image refresh issues
+  • Permission problems
+  • Port conflicts
+  • Cache issues
+  • And much more!
+
+Happy streaming! 🎥📺
+
+================================================================================

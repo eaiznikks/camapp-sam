@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <backup-rules>
+        <include domain="sharedpref" path="." />
+        <exclude domain="database" path="device_database.db" />
+    </backup-rules>
+</manifest>

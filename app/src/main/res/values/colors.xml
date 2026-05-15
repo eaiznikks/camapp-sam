@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.CameraSamsungApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/button_start</item>
+        <item name="colorPrimaryVariant">@color/button_end</item>
+        <item name="colorSecondary">@color/ink_primary</item>
+        <item name="colorSecondaryVariant">@color/ink_secondary</item>
+        <item name="colorError">@color/status_error_text</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:colorBackground">@color/screen_top</item>
+        <item name="android:colorForeground">@color/ink_primary</item>
+    </style>
+
+    <color name="screen_top">#FFF6EEDF</color>
+    <color name="screen_bottom">#FFE5EEF9</color>
+    <color name="glow_gold">#3AF6B84F</color>
+    <color name="glow_blue">#2A4B7BE5</color>
+    <color name="panel_surface">#F2FFFCF7</color>
+    <color name="panel_stroke">#26FFFFFF</color>
+    <color name="eyebrow_start">#FFE9F7EF</color>
+    <color name="eyebrow_end">#FFF8D989</color>
+    <color name="chip_background">#FFE8EEF8</color>
+    <color name="preview_shell_start">#FF1F2430</color>
+    <color name="preview_shell_end">#FF3A4150</color>
+    <color name="preview_black">#FF050608</color>
+    <color name="url_card_start">#FFF6F9FF</color>
+    <color name="url_card_end">#FFE9F1FF</color>
+    <color name="url_card_stroke">#1F23415B</color>
+    <color name="status_neutral_bg">#FFF5F1E7</color>
+    <color name="status_neutral_stroke">#26A36F2C</color>
+    <color name="button_start">#FF0F172A</color>
+    <color name="button_end">#FF2D5BFF</color>
+    <color name="button_disabled">#FFB3BCCB</color>
+    <color name="button_text">#FFF8FAFF</color>
+    <color name="ink_primary">#FF152033</color>
+    <color name="ink_secondary">#FF526074</color>
+    <color name="status_success_text">#FF0E7A55</color>
+    <color name="status_error_text">#FFB4412E</color>
+    <color name="status_warning_text">#FF8A5B10</color>
+    <color name="live_dot">#FFFF7447</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

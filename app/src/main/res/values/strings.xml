@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Samsung TV Camera</string>
+    <string name="hero_badge">Studio Broadcast</string>
+    <string name="hero_title">Capture on your phone. Display instantly on your TV.</string>
+    <string name="hero_subtitle">A clean live-camera console for Samsung TV photo moments. Frame the shot, capture once, and let the TV update automatically.</string>
+    <string name="preview_chip">Camera feed</string>
+    <string name="status_chip">Connection</string>
+    <string name="live_preview">Live Preview</string>
+    <string name="server_idle">Server standby</string>
+    <string name="ip_detecting">TV browser URL\nDetecting Wi-Fi network…</string>
+    <string name="url_helper">Open the TV browser and paste the full URL shown above. The `/viewer` page refreshes automatically after each capture.</string>
+    <string name="capture_button">Capture and Send to TV</string>
+    <string name="starting_camera">Starting camera...</string>
+    <string name="ready_to_capture">Ready! Tap Capture to take a photo.</string>
+    <string name="server_running">Server: Running on port %d ✓</string>
+    <string name="server_error">Server Error: %s</string>
+    <string name="server_failed">Server failed to start. Check logs.</string>
+    <string name="error_camera_access">Error: Cannot access camera. Check permissions.</string>
+    <string name="camera_ready">Camera ready! Tap Capture to take a photo.</string>
+    <string name="ip_address">TV browser URL\nhttp://%1$s:8080/viewer</string>
+    <string name="ip_not_connected">TV browser URL\nConnect this phone to Wi-Fi to generate the link.</string>
+    <string name="error_camera_not_ready">Error: Camera not ready</string>
+    <string name="capturing_photo">Capturing photo...</string>
+    <string name="photo_captured">Photo captured! Served at /latest.jpg</string>
+    <string name="photo_captured_but_failed">Photo captured but failed to save to server</string>
+    <string name="error_process_image">Error: Could not process image</string>
+    <string name="capture_error">Capture error: %s</string>
+    <string name="camera_permission_denied">Camera permission denied. Cannot use app.</string>
+    <string name="error_bind">Error: %s</string>
+</resources>

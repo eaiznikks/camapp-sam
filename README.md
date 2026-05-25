@@ -1,250 +1,179 @@
 # Samsung TV Photo Sharing MVP
 
-A simple Android app that captures photos and streams them live to a Samsung TV browser on the same Wi-Fi network.
+Android Studio Kotlin proof-of-concept: capture a photo on an Android phone and show the latest photo on a Samsung TV browser over the same Wi-Fi.
 
-## How It Works
+## MVP behavior
 
-1. **Android Phone**: Runs a local HTTP server on port 8080
-2. **Captures Photos**: Uses CameraX to capture images and save as `latest.jpg`
-3. **Serves to TV**: Browser on Samsung TV accesses `http://PHONE_IP:8080/viewer`
-4. **Auto-Refresh**: Webpage refreshes image every 1 second with cache busting
+1. Android phone runs the app.
+2. App starts a local HTTP server on port `8080`.
+3. App shows the TV URL: `http://PHONE_IP:8080/viewer`.
+4. User taps **Capture and Send to TV**.
+5. App saves the newest capture as `latest.jpg` in app cache.
+6. Samsung TV browser displays `/viewer` and auto-refreshes `/latest.jpg?t=Date.now()` every second.
 
-## Project Structure
+No cloud, no Firebase, no WebRTC, no Tizen Studio, no Samsung casting SDK, no account login.
 
-```
-camera-samsungapp/
-├── settings.gradle.kts
-├── build.gradle.kts
-├── gradle/
-│   └── libs.versions.toml
-└── app/
-    ├── build.gradle.kts
-    ├── proguard-rules.pro
-    ├── src/main/
-    │   ├── AndroidManifest.xml
-    │   ├── java/com/example/camerasamsungapp/
-    │   │   ├── MainActivity.kt
-    │   │   ├── PhotoServer.kt
-    │   │   ├── PhotoServerThread.kt
-    │   │   ├── IpAddressHelper.kt
-    │   │   └── HtmlViewerGenerator.kt
-    │   └── res/
-    │       ├── layout/
-    │       │   └── activity_main.xml
-    │       ├── values/
-    │       │   ├── strings.xml
-    │       │   └── colors.xml
-    │       ├── xml/
-    │       │   ├── network_security_config.xml
-    │       │   ├── data_extraction_rules.xml
-    │       │   └── backup_rules.xml
-    │       ├── drawable/
-    │       │   └── ic_launcher_foreground.xml
-    │       └── mipmap-anydpi-v33/
-    │           └── ic_launcher.xml
+## Corporate-safe dependency policy
+
+This repo is intentionally simple for office/corporate networks:
+
+- Clone over **HTTPS**, not SSH.
+- No private Git dependencies.
+- No Git submodules.
+- No external backend.
+- No custom package registries.
+- Dependencies come only from standard Gradle repositories:
+  - `google()`
+  - `mavenCentral()`
+  - `gradlePluginPortal()` for Android/Kotlin plugins
+- Main open-source/runtime dependencies:
+  - AndroidX CameraX
+  - NanoHTTPD
+  - AndroidX/AppCompat/Material/ConstraintLayout
+
+Recommended clone command:
+
+```bash
+git clone https://github.com/aiznikks/camapp-sam.git
 ```
 
-## Setup Instructions
+Avoid this in office networks if SSH is blocked:
 
-### Prerequisites
-- Android Studio (latest)
-- Android phone with API 24+ (Android 7.0+)
-- Samsung TV with Wi-Fi and web browser
-- Both devices on the same Wi-Fi network
+```bash
+git clone git@github.com:aiznikks/camapp-sam.git
+```
 
-### Build & Run
+## Requirements
 
-1. **Open the project in Android Studio**
-   - File → Open → Select `camera-samsungapp` folder
+- Android Studio with JDK 17 support
+- Android SDK Platform 35 installed
+- Android phone, API 24+
+- Samsung TV browser
+- Phone and TV on the same Wi-Fi/LAN
 
-2. **Sync Gradle**
-   - Wait for all dependencies to download
-   - Should complete without errors
+## Key files
 
-3. **Connect your Android device**
-   - Enable USB Debugging on your phone
-   - Or create an AVD emulator in Android Studio
+```text
+settings.gradle.kts
+build.gradle.kts
+gradle/libs.versions.toml
+app/build.gradle.kts
+app/src/main/AndroidManifest.xml
+app/src/main/java/com/example/camerasamsungapp/MainActivity.kt
+app/src/main/java/com/example/camerasamsungapp/PhotoServer.kt
+app/src/main/java/com/example/camerasamsungapp/PhotoServerThread.kt
+app/src/main/java/com/example/camerasamsungapp/IpAddressHelper.kt
+app/src/main/java/com/example/camerasamsungapp/ViewerHtml.kt
+app/src/main/res/layout/activity_main.xml
+app/src/main/res/values/strings.xml
+app/src/main/res/xml/network_security_config.xml
+app/src/test/java/com/example/camerasamsungapp/ViewerHtmlTest.kt
+```
 
-4. **Run the app**
-   - Click "Run" (green play button) or Shift+F10
-   - Grant camera permissions when prompted
-   - You should see:
-     - Camera preview on screen
-     - "Server: Running on port 8080 ✓" (green text)
-     - Your phone's Wi-Fi IP address (e.g., `IP: 192.168.0.100:8080`)
+## Run from Android Studio
 
-### Test from Phone Browser
+1. Open Android Studio.
+2. Choose **File → Open** and select this repo folder.
+3. Let Gradle sync.
+4. If Android Studio asks to install SDK 35/build tools, accept.
+5. Connect an Android phone with USB debugging enabled.
+6. Press **Run**.
+7. Grant camera permission.
+8. Confirm the app shows:
+   - server running on port `8080`
+   - TV browser URL
+   - camera preview
 
-1. Open your phone's browser
-2. Navigate to `http://localhost:8080/latest.jpg`
-3. You should see a placeholder image (if no photo taken yet)
+## Test before using Samsung TV
 
-### Test from Laptop
+Always test from a laptop/phone browser first.
 
-1. Find your phone's IP from the app (e.g., `192.168.0.100`)
-2. Open laptop browser
-3. Test endpoints:
-   - Image: `http://192.168.0.100:8080/latest.jpg` (or placeholder if no image yet)
-   - Viewer: `http://192.168.0.100:8080/viewer` (fullscreen viewer page)
+Replace `PHONE_IP` with the IP shown in the app:
 
-### Set Up on Samsung TV
+```text
+http://PHONE_IP:8080/status
+http://PHONE_IP:8080/viewer
+http://PHONE_IP:8080/latest.jpg
+```
 
-1. **On your phone**: Tap "CAPTURE PHOTO" to capture an image
-2. **On TV**: Open web browser
-3. Navigate to `http://YOUR_PHONE_IP:8080/viewer`
-   - Replace `YOUR_PHONE_IP` with your actual phone IP (e.g., `192.168.0.100`)
-4. You should see:
-   - Black fullscreen background
-   - Your captured photo centered
-   - Image auto-refreshes every 1 second
-5. Each time you capture on your phone, the TV updates within 1 second
+Expected:
 
-## Usage
+- `/status` returns JSON with `server: ok`.
+- `/viewer` opens a black fullscreen viewer page.
+- `/latest.jpg` returns a transparent placeholder before first capture, then the latest photo.
 
-1. Open the app on your Android phone
-2. Point camera at subject
-3. Tap **CAPTURE PHOTO** button
-4. Image saves and is served to the HTTP server
-5. TV browser auto-refreshes and shows new image
+## Use on Samsung TV
 
-## Features Included
+1. Keep phone app open.
+2. Keep phone and TV on the same Wi-Fi.
+3. Open Samsung TV browser.
+4. Open:
 
-✅ CameraX camera preview  
-✅ High-quality image capture  
-✅ Local HTTP server (NanoHTTPD)  
-✅ Auto-refresh with cache busting (cache-busting query params)  
-✅ Shows phone IP address  
-✅ Shows server status  
-✅ Responsive for TV screen  
-✅ Black background for TV display  
-✅ Error handling and edge cases  
-✅ Cleartext HTTP support  
-✅ Permission handling (runtime permissions)  
-✅ Defensive coding (null checks, try/catch)  
+```text
+http://PHONE_IP:8080/viewer
+```
+
+5. Capture a photo on the phone.
+6. TV should update within 1 second.
 
 ## Troubleshooting
 
-### "Server: Failed to start server"
+### Gradle clone/sync fails with SSH error
 
-**Cause 1: Port 8080 already in use**
-- Solution: Close other apps using port 8080 or restart your phone
-- Or: Check if previous app instance is still running (kill it from Settings → Apps)
+Use HTTPS clone only:
 
-**Cause 2: Cleartext HTTP blocked**
-- Solution: Already handled in code via `network_security_config.xml`
-- Check Android logs: `adb logcat | grep PhotoServer`
+```bash
+git clone https://github.com/aiznikks/camapp-sam.git
+```
 
-### "IP: Not connected to Wi-Fi"
+This project does not require SSH for dependencies.
 
-- Check that phone is on the same Wi-Fi network as TV
-- Ensure Wi-Fi is enabled and connected (check Wi-Fi icon in status bar)
-- Try disconnecting and reconnecting to Wi-Fi
-- Restart the app
+### Gradle cannot download dependencies
 
-### Image not refreshing on TV
+Corporate firewall/proxy may block Gradle/Maven downloads. Ask IT to allow:
 
-**Cause 1: Image cache in TV browser**
-- Solution: Hard refresh the page (Ctrl+Shift+R or Cmd+Shift+R)
-- Or: Reload by navigating back and forward in browser history
+- `https://services.gradle.org`
+- `https://plugins.gradle.org`
+- `https://dl.google.com/dl/android/maven2/`
+- `https://repo.maven.apache.org/maven2/`
 
-**Cause 2: No new image captured**
-- Solution: Tap "CAPTURE PHOTO" on your phone
-- Check status text on phone for "Photo captured!"
+### Phone URL does not open from laptop/TV
 
-**Cause 3: Network connectivity issue**
-- Solution: Verify both devices are on same Wi-Fi (not different 2.4GHz/5GHz bands)
-- Test: Ping phone IP from laptop: `ping 192.168.0.100`
+Check:
 
-### "Camera permission denied"
+- Phone and TV are on the same Wi-Fi.
+- Phone is not on mobile hotspot/client isolation network.
+- VPN is off on phone/laptop.
+- Try `/status` first.
+- Use `http://`, not `https://`.
 
-- Grant permission when prompt appears
-- If already denied: Settings → Apps → CameraSamsungApp → Permissions → Camera → Allow
+### TV page opens but image does not update
 
-### No image on first load
+- Capture a fresh photo.
+- Reload the TV browser page.
+- Confirm `/latest.jpg` works from laptop.
+- The viewer uses `/latest.jpg?t=Date.now()` to avoid TV browser cache.
 
-- This is normal! Placeholder image shows until first photo is captured
-- Tap "CAPTURE PHOTO" on phone to capture first image
-- TV will show it within 1 second
+### Server failed to start
 
-### "Tap Capture to take a photo" but button does nothing
+- Port `8080` may already be in use.
+- Force stop the app and reopen it.
+- Restart the phone if needed.
 
-**Cause 1: Camera not initialized**
-- Wait a few seconds for camera to initialize
-- Check logs: `adb logcat | grep MainActivity`
+### Camera does not work
 
-**Cause 2: Camera already in use**
-- Close other camera apps (camera, video, social media)
-- Restart app
+- Grant camera permission.
+- Close other camera apps.
+- Try a real phone, not emulator, for the final demo.
 
-**Cause 3: Camera permission not granted**
-- See "Camera permission denied" section above
+## Design choices
 
-### TV browser shows "ERR_INVALID_URL" or can't connect
-
-- Verify phone IP is correct (shown in app status)
-- Check both devices on same Wi-Fi (use Wi-Fi settings to confirm network)
-- Try using full URL with protocol: `http://192.168.0.100:8080/viewer`
-- Not: `https://` (only plain HTTP)
-- Test connectivity: From laptop, try: `curl http://192.168.0.100:8080/latest.jpg`
-
-### "Camera preview is frozen" or blank
-
-- Restart the app
-- Or restart your phone and reopen app
-- Check that camera isn't blocked by permissions or access
-
-### Image looks stretched or wrong aspect ratio
-
-- This is TV browser behavior, not app issue
-- Some older TV browsers may not handle max-width/max-height properly
-- The viewer page uses CSS `object-fit: contain` to preserve aspect ratio
-
-### App crashes on startup
-
-- Check Android version is API 24+ (Android 7.0+)
-- Check all dependencies are downloaded (check Gradle sync errors)
-- Check permissions are granted
-- View logs: `adb logcat` and search for "FATAL" or "Exception"
-
-## Dependencies
-
-- **CameraX** (camera-core, camera-camera2, camera-lifecycle): Modern camera API
-- **NanoHTTPD**: Lightweight embedded HTTP server
-- **AndroidX**: Android Framework libraries
-- **Kotlin**: Programming language
-
-All versions pinned to stable releases for compatibility.
-
-## Architecture
-
-- **Single Activity**: Simple, single-screen UI
-- **CameraX**: Modern camera implementation (recommended by Google)
-- **NanoHTTPD**: Self-contained HTTP server (no external backend needed)
-- **Async Server Thread**: Server runs in background, doesn't block UI
-- **Image Cache**: Latest image stored in app's cache directory
-- **HTML Viewer**: Pure JavaScript, no external dependencies
-
-## Security Notes
-
-- Server is on local Wi-Fi only (not exposed to internet)
-- Port 8080 is standard HTTP, not HTTPS (by design for simplicity)
-- Image overwrite behavior: New photos replace old ones (no image history)
-- cleartext HTTP is explicitly allowed for local Wi-Fi (network_security_config.xml)
-
-## Future Enhancements (Out of Scope)
-
-- HTTPS support
-- Authentication
-- Multiple image history/slideshow
-- Tizen app for native Samsung TV support
-- Cloud backup
-- Editing/filters
-- Video recording
+- Saves only one latest image: `latest.jpg`.
+- Does not save to phone gallery.
+- Uses app cache to avoid Android storage permission issues.
+- Uses plain HTTP because Samsung TV browser only needs local LAN access.
+- Uses relative image URL `/latest.jpg`, not `localhost`, because on TV `localhost` means the TV itself.
 
 ## License
 
-Open source, for personal use.
-
-## Contact
-
-For issues or questions, check the troubleshooting guide above.
+Use internally as a proof-of-concept. Add your company-approved license before wider distribution.

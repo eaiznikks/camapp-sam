@@ -2,64 +2,65 @@ package com.example.camerasamsungapp
 
 import android.content.Context
 import android.util.Log
+import java.io.File
 import kotlin.concurrent.thread
 
 class PhotoServerThread(private val context: Context) {
+
     companion object {
         private const val TAG = "PhotoServerThread"
     }
-    
-    private var server: PhotoServer? = null
-    private var serverThread: Thread? = null
-    private var isRunning = false
 
-    fun startServer(callback: (success: Boolean, port: Int, error: String?) -> Unit) {
-        if (isRunning) {
-            Log.w(TAG, "Server is already running")
+    private var server: PhotoServer? = null
+    @Volatile private var running: Boolean = false
+
+    fun start(callback: (success: Boolean, port: Int, error: String?) -> Unit) {
+        if (running) {
+            callback(true, PhotoServer.PORT, null)
             return
         }
 
-        serverThread = thread(start = true) {
+        thread(start = true, name = "photo-server") {
             try {
-                server = PhotoServer(8080, context)
-                server?.start()
-                isRunning = true
-                Log.i(TAG, "HTTP Server started on port 8080")
-                callback(true, 8080, null)
+                val createdServer = PhotoServer(PhotoServer.PORT, context.applicationContext)
+                createdServer.start(5000, false)
+                server = createdServer
+                running = true
+                Log.i(TAG, "HTTP server running on port ${PhotoServer.PORT}")
+                callback(true, PhotoServer.PORT, null)
             } catch (e: Exception) {
-                val errorMsg = if (e.message?.contains("Address already in use", ignoreCase = true) == true) {
-                    "Port 8080 is already in use. Try closing other apps or restarting."
-                } else {
-                    "Server error: ${e.message}"
-                }
-                Log.e(TAG, "Failed to start server", e)
-                isRunning = false
-                callback(false, 0, errorMsg)
-            }
-        }
-    }
-
-    fun stopServer() {
-        try {
-            if (server != null) {
-                server?.stop()
+                running = false
                 server = null
-                isRunning = false
-                Log.i(TAG, "HTTP Server stopped")
+                val message = if (e.message?.contains("Address already in use", ignoreCase = true) == true) {
+                    "Port ${PhotoServer.PORT} is already in use. Restart phone or close the app using it."
+                } else {
+                    e.message ?: "Unknown server error"
+                }
+                Log.e(TAG, "HTTP server failed", e)
+                callback(false, PhotoServer.PORT, message)
             }
+        }
+    }
+
+    fun stop() {
+        try {
+            server?.stop()
         } catch (e: Exception) {
-            Log.e(TAG, "Error stopping server", e)
+            Log.e(TAG, "Error while stopping HTTP server", e)
+        } finally {
+            server = null
+            running = false
         }
     }
 
-    fun saveImage(data: ByteArray): Boolean {
-        return if (isRunning && server != null) {
-            server!!.saveImage(data)
-        } else {
-            Log.w(TAG, "Server is not running, cannot save image")
-            false
+    fun replaceLatestImage(source: File): Boolean {
+        val activeServer = server
+        if (!running || activeServer == null) {
+            Log.w(TAG, "Cannot replace latest image because server is not running")
+            return false
         }
+        return activeServer.replaceLatestImage(source)
     }
 
-    fun isServerRunning(): Boolean = isRunning
+    fun isRunning(): Boolean = running
 }

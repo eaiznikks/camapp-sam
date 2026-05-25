@@ -6,90 +6,106 @@ import fi.iki.elonen.NanoHTTPD
 import java.io.File
 import java.io.FileInputStream
 
-class PhotoServer(port: Int, private val context: Context) : NanoHTTPD(port) {
+class PhotoServer(
+    port: Int,
+    context: Context
+) : NanoHTTPD(port) {
+
     companion object {
         private const val TAG = "PhotoServer"
+        const val PORT = 8080
     }
-    
-    private val cacheDir: File = context.cacheDir
-    private val latestImageFile: File = File(cacheDir, "latest.jpg")
 
-    init {
-        Log.d(TAG, "PhotoServer initialized on port $port")
-    }
+    private val latestImageFile: File = File(context.cacheDir, "latest.jpg")
 
     override fun serve(session: IHTTPSession?): Response {
         return try {
             when (session?.uri) {
-                "/latest.jpg" -> serveLatestImage()
-                "/viewer" -> serveViewerPage()
-                else -> {
-                    Log.w(TAG, "Unknown URI: ${session?.uri}")
-                    newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "404 Not Found")
-                }
+                null -> text(Response.Status.BAD_REQUEST, "Bad request")
+                "/", "/viewer" -> viewerPage()
+                "/latest.jpg" -> latestImage()
+                "/status" -> status()
+                else -> text(Response.Status.NOT_FOUND, "Not found")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error serving request", e)
-            newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", "Internal Server Error: ${e.message}")
+            Log.e(TAG, "Request failed: ${session?.uri}", e)
+            text(Response.Status.INTERNAL_ERROR, "Server error: ${e.message ?: "unknown"}")
         }
     }
 
-    private fun serveLatestImage(): Response {
-        return if (latestImageFile.exists() && latestImageFile.length() > 0) {
-            try {
-                val inputStream = FileInputStream(latestImageFile)
-                val response = newFixedLengthResponse(Response.Status.OK, "image/jpeg", inputStream, latestImageFile.length())
-                response.addHeader("Cache-Control", "no-cache, no-store, must-revalidate")
-                response.addHeader("Pragma", "no-cache")
-                response.addHeader("Expires", "0")
-                Log.d(TAG, "Serving latest.jpg (${latestImageFile.length()} bytes)")
-                response
-            } catch (e: Exception) {
-                Log.e(TAG, "Error reading image file", e)
-                newFixedLengthResponse(Response.Status.INTERNAL_ERROR, "text/plain", "Error reading image")
+    private fun viewerPage(): Response {
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "text/html; charset=utf-8",
+            ViewerHtml.page()
+        ).withoutCache()
+    }
+
+    private fun latestImage(): Response {
+        if (!latestImageFile.exists() || latestImageFile.length() <= 0L) {
+            return newFixedLengthResponse(
+                Response.Status.OK,
+                "image/png",
+                transparentPng().inputStream(),
+                transparentPng().size.toLong()
+            ).withoutCache()
+        }
+
+        return newFixedLengthResponse(
+            Response.Status.OK,
+            "image/jpeg",
+            FileInputStream(latestImageFile),
+            latestImageFile.length()
+        ).withoutCache()
+    }
+
+    private fun status(): Response {
+        val body = """
+            {
+              "server": "ok",
+              "hasImage": ${latestImageFile.exists() && latestImageFile.length() > 0L},
+              "imageBytes": ${if (latestImageFile.exists()) latestImageFile.length() else 0}
             }
-        } else {
-            Log.w(TAG, "No image available yet")
-            val placeholderResponse = generatePlaceholder()
-            val response = newFixedLengthResponse(Response.Status.OK, "image/png", placeholderResponse.inputStream(), placeholderResponse.size.toLong())
-            response.addHeader("Cache-Control", "no-cache, no-store, must-revalidate")
-            response
-        }
+        """.trimIndent()
+        return newFixedLengthResponse(Response.Status.OK, "application/json; charset=utf-8", body).withoutCache()
     }
 
-    private fun serveViewerPage(): Response {
-        val htmlContent = HtmlViewerGenerator.generateViewerHtml("http://localhost:8080/latest.jpg")
-        val response = newFixedLengthResponse(Response.Status.OK, "text/html; charset=utf-8", htmlContent)
-        response.addHeader("Cache-Control", "no-cache, no-store, must-revalidate")
-        Log.d(TAG, "Serving viewer page")
-        return response
+    private fun text(status: Response.Status, body: String): Response {
+        return newFixedLengthResponse(status, "text/plain; charset=utf-8", body).withoutCache()
     }
 
-    private fun generatePlaceholder(): ByteArray {
-        // Minimal 1x1 PNG placeholder (transparent)
-        return byteArrayOf(
-            0x89.toByte(), 0x50.toByte(), 0x4E.toByte(), 0x47.toByte(), 0x0D.toByte(), 0x0A.toByte(), 0x1A.toByte(), 0x0A.toByte(),
-            0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x0D.toByte(), 0x49.toByte(), 0x48.toByte(), 0x44.toByte(), 0x52.toByte(),
-            0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x01.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x01.toByte(),
-            0x08.toByte(), 0x06.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x1F.toByte(), 0x15.toByte(), 0xC4.toByte(),
-            0x89.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x0D.toByte(), 0x49.toByte(), 0x44.toByte(), 0x41.toByte(),
-            0x54.toByte(), 0x08.toByte(), 0x99.toByte(), 0x01.toByte(), 0x02.toByte(), 0x00.toByte(), 0xFD.toByte(), 0xFF.toByte(),
-            0x00.toByte(), 0x00.toByte(), 0x02.toByte(), 0x00.toByte(), 0x01.toByte(), 0xE5.toByte(), 0x27.toByte(), 0xDE.toByte(),
-            0xFC.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x49.toByte(), 0x45.toByte(), 0x4E.toByte(),
-            0x44.toByte(), 0xAE.toByte(), 0x42.toByte(), 0x60.toByte(), 0x82.toByte()
-        )
-    }
-
-    fun saveImage(data: ByteArray): Boolean {
+    fun replaceLatestImage(source: File): Boolean {
         return try {
-            latestImageFile.writeBytes(data)
-            Log.d(TAG, "Image saved successfully (${data.size} bytes)")
+            if (!source.exists() || source.length() <= 0L) {
+                Log.w(TAG, "Captured file missing or empty: ${source.absolutePath}")
+                return false
+            }
+            source.copyTo(latestImageFile, overwrite = true)
+            Log.i(TAG, "Updated latest image: ${latestImageFile.length()} bytes")
             true
         } catch (e: Exception) {
-            Log.e(TAG, "Error saving image", e)
+            Log.e(TAG, "Could not update latest image", e)
             false
         }
     }
 
-    fun getImageFile(): File = latestImageFile
+    private fun Response.withoutCache(): Response {
+        addHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+        addHeader("Pragma", "no-cache")
+        addHeader("Expires", "0")
+        addHeader("Access-Control-Allow-Origin", "*")
+        return this
+    }
+
+    private fun transparentPng(): ByteArray = byteArrayOf(
+        0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
+        0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+        0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+        0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4.toByte(),
+        0x89.toByte(), 0x00, 0x00, 0x00, 0x0D, 0x49, 0x44, 0x41,
+        0x54, 0x08, 0x99.toByte(), 0x63, 0x60, 0x00, 0x00,
+        0x00, 0x02, 0x00, 0x01, 0xE2.toByte(), 0x21, 0xBC.toByte(), 0x33,
+        0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44,
+        0xAE.toByte(), 0x42, 0x60, 0x82.toByte()
+    )
 }

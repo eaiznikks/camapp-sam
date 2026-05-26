@@ -4,7 +4,9 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.Surface
+import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
@@ -18,6 +20,8 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import java.io.File
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -42,6 +46,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        configureSystemBars()
         setContentView(R.layout.activity_main)
 
         previewContainer = findViewById(R.id.previewContainer)
@@ -64,6 +69,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         captureButton.isEnabled = false
+        installOneUiPressFeedback(captureButton)
         captureButton.setOnClickListener { capturePhoto() }
 
         startPhotoServer()
@@ -220,6 +226,38 @@ class MainActivity : AppCompatActivity() {
 
     private fun hasCameraPermission(): Boolean {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun configureSystemBars() {
+        window.statusBarColor = color(R.color.oneui_screen)
+        window.navigationBarColor = color(R.color.oneui_surface)
+        WindowCompat.setDecorFitsSystemWindows(window, true)
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightStatusBars = true
+            isAppearanceLightNavigationBars = true
+        }
+    }
+
+    private fun installOneUiPressFeedback(button: Button) {
+        val interpolator = DecelerateInterpolator()
+        button.setOnTouchListener { view, event ->
+            if (!view.isEnabled) return@setOnTouchListener false
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> view.animate()
+                    .scaleX(0.98f)
+                    .scaleY(0.98f)
+                    .setDuration(90L)
+                    .setInterpolator(interpolator)
+                    .start()
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> view.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(140L)
+                    .setInterpolator(interpolator)
+                    .start()
+            }
+            false
+        }
     }
 
     private fun setStatusMessage(message: String, @ColorRes colorRes: Int) {

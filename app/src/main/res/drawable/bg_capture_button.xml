@@ -2,17 +2,20 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="false">
         <shape android:shape="rectangle">
-            <corners android:radius="24dp" />
+            <corners android:radius="26dp" />
             <solid android:color="@color/button_disabled" />
+        </shape>
+    </item>
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="26dp" />
+            <solid android:color="@color/oneui_accent_pressed" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="24dp" />
-            <gradient
-                android:angle="0"
-                android:endColor="@color/button_end"
-                android:startColor="@color/button_start" />
+            <corners android:radius="26dp" />
+            <solid android:color="@color/oneui_accent" />
         </shape>
     </item>
 </selector>

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Samsung TV Camera</string>
-    <string name="hero_badge">Local Wi-Fi MVP</string>
-    <string name="hero_title">Capture on phone. View on Samsung TV.</string>
-    <string name="hero_subtitle">No cloud, no Tizen app, no login. Keep the phone and TV on the same Wi-Fi, open the URL on TV, then capture.</string>
-    <string name="preview_chip">Camera feed</string>
-    <string name="status_chip">Connection</string>
-    <string name="live_preview">Live Preview</string>
+    <string name="hero_badge">Phone to TV camera</string>
+    <string name="hero_title">Share a fresh photo with your TV.</string>
+    <string name="hero_subtitle">Use the phone as the camera. Open the local link on the TV browser, then capture whenever you want the TV view to update.</string>
+    <string name="preview_chip">Camera preview</string>
+    <string name="preview_helper">Frame the shot here before sending the latest capture to the TV viewer.</string>
+    <string name="status_chip">Connection status</string>
+    <string name="live_preview">Live preview</string>
     <string name="server_idle">Server standby</string>
     <string name="server_starting">Starting local HTTP server…</string>
     <string name="ip_detecting">TV browser URL\nDetecting Wi-Fi network…</string>
@@ -14,7 +15,7 @@
     <string name="capture_button">Capture and Send to TV</string>
     <string name="starting_camera">Starting camera…</string>
     <string name="ready_to_capture">Ready. Tap Capture to send the latest photo to TV.</string>
-    <string name="server_running">Server running on port %d ✓</string>
+    <string name="server_running">Server running on port %d</string>
     <string name="server_error">Server error: %s</string>
     <string name="server_failed">Server failed to start. Port 8080 may be blocked or already in use.</string>
     <string name="camera_permission_needed">Camera permission is required to capture photos.</string>
